@@ -1,0 +1,194 @@
+//connect to the APIs
+const dogApi = document.getElementById("dog-api");
+const catApi = document.getElementById("cat-api");
+const weatherApi = document.getElementById("weather-api");
+const searchInput = document.getElementById("searchInput");
+const searchResults = document.getElementById("search-results");
+const currencyApi = document.getElementById("currency-exchange-api");
+const moviesApi = document.getElementById("movies-api");
+const githubApi = document.getElementById("github-api");
+const stockApi = document.getElementById("stock-api");
+const jokeApi = document.getElementById("joke-api");
+
+//Random Dog Image API
+async function getDogImage() {
+    const response = await fetch('https://dog.ceo/api/breeds/image/random');
+    const data = await response.json();
+    dogApi.innerHTML = "";  
+    const img = document.createElement('img');
+    img.src = data.message;
+    dogApi.appendChild(img);
+       
+}
+
+
+
+//Random Cat Image API
+async function getCatImage() {
+    const response = await fetch("https://api.thecatapi.com/v1/images/search");
+    const data = await response.json();
+    catApi.innerHTML = "";
+    const img = document.createElement('img');
+    img.src = data[0].url; // Access the URL from the first object in the array
+    catApi.appendChild(img);
+}
+
+//Weather Information API
+// Holds the last user-selected location from the search results
+let selectedLocation = null;
+
+async function getWeatherInfo(latitude, longitude) {
+    try {
+        // If no coordinates provided, try to resolve from selectedLocation
+        if (typeof latitude === 'undefined' || typeof longitude === 'undefined') {
+            if (selectedLocation && selectedLocation.latitude && selectedLocation.longitude) {
+                latitude = selectedLocation.latitude;
+                longitude = selectedLocation.longitude;
+            } else if (searchInput && searchInput.value.trim().length > 2) {
+                // Try to geocode the input and use the first result
+                const results = await searchLocation(searchInput.value.trim());
+                if (results && results.length > 0) {
+                    latitude = results[0].latitude;
+                    longitude = results[0].longitude;
+                    // set selectedLocation for future
+                    selectedLocation = results[0];
+                }
+            } else if (navigator.geolocation) {
+                // Fallback to browser geolocation
+                const pos = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
+                });
+                latitude = pos.coords.latitude;
+                longitude = pos.coords.longitude;
+            } else {
+                // final fallback to NYC
+                latitude = 40.7128;
+                longitude = -74.0060;
+            }
+        }
+
+        // Use Open-Meteo's current_weather flag to get current weather
+        const response = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit`
+        );
+        const data = await response.json();
+        // attach coordinates to data for display if available
+        data._coords = { latitude, longitude };
+        displayWeatherResults(data);
+    } catch (error) {
+        console.error('Error fetching weather data:', error);
+        searchResults.innerHTML = '<p>Error fetching weather data. Please try again later.</p>';
+    }
+}
+
+async function searchLocation(query) {
+    try {
+        const response = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=10&language=en&format=json`
+        );
+        const data = await response.json();
+        const results = data.results || [];
+        displayLocationResults(results);
+        return results;
+    } catch (error) {
+        console.error('Error searching location:', error);
+        searchResults.innerHTML = '<p>Error searching location. Please try again later.</p>';
+        return [];
+    }
+}
+
+function displayLocationResults(results) {
+    searchResults.innerHTML = "";
+    if (results && results.length > 0) {
+        searchResults.innerHTML = '';
+        results.forEach(location => {
+            const resultElement = document.createElement('div');
+            resultElement.classList.add('search-result-item');
+            resultElement.style.cursor = 'pointer';
+            resultElement.innerHTML = 
+                `<h3>${location.name}${location.admin1 ? ', ' + location.admin1 : ''}</h3>
+                <p>${location.country}</p>`;
+            resultElement.addEventListener('click', () => {
+                // set selected location and fetch weather for it
+                selectedLocation = {
+                    name: location.name + (location.admin1 ? ', ' + location.admin1 : ''),
+                    country: location.country,
+                    latitude: location.latitude,
+                    longitude: location.longitude
+                };
+                // visually indicate selection
+                Array.from(searchResults.children).forEach(c => c.classList.remove('selected'));
+                resultElement.classList.add('selected');
+                getWeatherInfo(location.latitude, location.longitude);
+            });
+            searchResults.appendChild(resultElement);
+        })
+    } else {
+        searchResults.innerHTML = '<p>No locations found.</p>';
+    }
+}
+
+function displayWeatherResults(data) {
+    const current = data.current_weather;
+    if (!current) {
+        searchResults.innerHTML = '<p>No current weather data available for this location.</p>';
+        return;
+    }
+
+    const locationName = selectedLocation && selectedLocation.name ? selectedLocation.name :
+        (data.name ? data.name : (data._coords ? `Lat: ${data._coords.latitude.toFixed(3)}, Lon: ${data._coords.longitude.toFixed(3)}` : 'Selected Location'));
+
+    searchResults.innerHTML = `
+        <div class="weather-info">
+            <h3>Current Weather — ${locationName}</h3>
+            <p><strong>Temperature:</strong> ${current.temperature}°F</p>
+            <p><strong>Wind Speed:</strong> ${current.windspeed} km/h</p>
+            <p><strong>Weather Code:</strong> ${current.weathercode}</p>
+        </div>
+    `;
+}
+
+searchInput.addEventListener("input", async (event) => {
+    const query = event.target.value.trim();
+    if (query.length > 2) {
+        await searchLocation(query);
+    } else {
+        searchResults.innerHTML = "";
+    }
+});
+//Currency Exchange Rate API
+
+async function getExchangeRate(fromCurrency, toCurrency) {
+    const response = await fetch("https://open.er-api.com/v6/latest/USD");
+    const data = await response.json();
+    const rate = data.rates[toCurrency];
+    currencyApi.innerHTML = `<p>1 ${fromCurrency} = ${rate} ${toCurrency}</p>`;
+}
+
+//Trending Movies API
+
+//GitHub User Profile API
+
+//Stock Information API
+
+//Random Joke API
+
+async function getJoke() {
+    const response = await fetch("https://v2.jokeapi.dev/joke/Any?safe-mode");
+    const data = await response.json();
+    jokeApi.innerHTML = "";
+    if (data.type === "single") {
+        jokeApi.innerHTML = `<p>${data.joke}</p>`;
+    } else if (data.type === "twopart") {
+        jokeApi.innerHTML = `<p>${data.setup}</p><p>${data.delivery}</p>`;
+    }
+}
+
+
+dogApi.addEventListener("click", getDogImage);
+catApi.addEventListener("click", getCatImage);
+weatherApi.addEventListener("click", () => getWeatherInfo());
+jokeApi.addEventListener("click", getJoke);
+currencyApi.addEventListener("click", () => getExchangeRate("USD", "EUR"));
+
+

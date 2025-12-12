@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css" class="stylesheet">
+    <title>DashConnect</title>
+</head>
+<body>
+    <h1 class="main-title">Java Script API Dashboard</h1>
+    <div class="grid-container">
+        <section class="grid-item" id="dog-api">
+            <h2>Random Dog</h2>
+            <button onclick="getDogImage()">Get Dog Image</button>
+            <div class="output" id="dog-output"></div>
+        </section>
+        <section class="grid-item" id="cat-api">
+            <h2>Random Cat</h2>
+            <button onclick="getCatImage()">Get Cat Image</button>
+            <div class="output" id="cat-output"></div>
+        </section>
+        <section class="grid-item" id="weather-api">
+            <h2>Weather Info</h2>
+            <input type="text" id="searchInput" placeholder="Search...">
+            <!--<button onclick="getWeatherInfo()">Get Weather</button>-->
+            <button onclick="getWeatherInfo()">Get Weather</button>
+            
+            <div class="output" id="search-results"></div>
+        </section>
+        <section class="grid-item" id="currency-exchange-api">
+            <h2>Currency Exchange</h2>
+            <button onclick="getCurrencyExchange">Get Exchange Rate</button>
+            <div class="output" id="currency-output"></div>
+        </section>
+        <section class="grid-item" id="trending-movies-api">
+            <h2>Trending Movies</h2>
+            <button onclick="getTrendingMovies">Get Trending Movies</button>
+            <div class="output" id="movies-output"></div>
+        </section>
+        <section class="grid-item" id="github-user-api">
+            <h2>GitHub User</h2>
+            <button onclick="getGitHubUser">Get GitHub User</button>
+            <div class="output" id="github-output"></div>
+        </section>
+        <section class="grid-item" id="stock-information-api">
+            <h2>Stock Information</h2>
+            <button onclick="getStockInfo">Get Stock Info</button>
+            <div class="output" id="stock-output"></div>
+        </section>
+        <section class="grid-item" id="joke-api">
+            <h2>Random Joke</h2>
+            <button onclick="getRandomJoke">Get Joke</button>
+            <div class="output" id="joke-output"></div>
+        </section>
+    </div>
+    <script src="script.js"></script>
+    <a href="https://www.exchangerate-api.com">Rates By Exchange Rate API</a>
+</body>
+</html>
