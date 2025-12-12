@@ -5,7 +5,7 @@ const weatherApi = document.getElementById("weather-api");
 const searchInput = document.getElementById("searchInput");
 const searchResults = document.getElementById("search-results");
 const currencyApi = document.getElementById("currency-exchange-api");
-const moviesApi = document.getElementById("movies-api");
+const moviesApi = document.getElementById("trending-movies-api");
 const githubApi = document.getElementById("github-api");
 const stockApi = document.getElementById("stock-api");
 const jokeApi = document.getElementById("joke-api");
@@ -167,6 +167,39 @@ async function getExchangeRate(fromCurrency, toCurrency) {
 
 //Trending Movies API
 
+const apiKey = "3275d797df8384bd24e51a97d6d7ea3f";
+const url = `https://api.themoviedb.org/3/trending/movie/week?api_key=${apiKey}&language=en-US`;
+
+async function getTrendingMovies() {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+    
+        const data = await response.json();
+        const top5Movies = data.results.slice(0, 5);
+        moviesApi.innerHTML = "";
+        top5Movies.forEach((movie, index) => {
+            const movieElement = document.createElement('div');
+            movieElement.classList.add('movie-item');
+            movieElement.innerHTML = `
+                <h4>${index + 1}. ${movie.title}</h4>
+                <p><strong>Rating:</strong> ${movie.vote_average}/10</p>
+                <p>${movie.overview.substring(0, 100)}...</p>
+            `;
+            moviesApi.appendChild(movieElement);
+        });
+    } catch (error) {
+        console.error("Error fetching trending movies:", error);
+        moviesApi.innerHTML = '<p>Error fetching trending movies. Please try again later.</p>';
+    }
+}
+
+
+
+    
+
 //GitHub User Profile API
 
 //Stock Information API
@@ -190,5 +223,5 @@ catApi.addEventListener("click", getCatImage);
 weatherApi.addEventListener("click", () => getWeatherInfo());
 jokeApi.addEventListener("click", getJoke);
 currencyApi.addEventListener("click", () => getExchangeRate("USD", "EUR"));
-
+moviesApi.addEventListener("click", () => getTrendingMovies());
 
