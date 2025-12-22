@@ -6,7 +6,8 @@ const searchInput = document.getElementById("searchInput");
 const searchResults = document.getElementById("search-results");
 const currencyApi = document.getElementById("currency-exchange-api");
 const moviesApi = document.getElementById("trending-movies-api");
-const githubApi = document.getElementById("github-api");
+// matches id in index.html
+const githubApi = document.getElementById("github-user-api");
 const stockApi = document.getElementById("stock-api");
 const jokeApi = document.getElementById("joke-api");
 
@@ -202,6 +203,71 @@ async function getTrendingMovies() {
 
 //GitHub User Profile API
 
+async function getRandomGitHubUser() {
+    const userDetails = document.getElementById('github-user-details');
+    userDetails.innerHTML = "<p>Fetching new user...</p>";
+
+    try {
+        // Limit pages to avoid exceeding search result bounds; GitHub has a ~1000 result cap
+        const randomPage = Math.floor(Math.random() * 100) + 1;
+        const githubUrl = new URL("https://api.github.com/search/users");
+        // Use a valid search qualifier for users — 'repos:>0' finds users with at least one repo
+        githubUrl.searchParams.append('q', 'repos:>0');
+        githubUrl.searchParams.append('per_page', '1');
+        githubUrl.searchParams.append('page', randomPage);
+
+        // Browsers disallow setting the User-Agent header; only set Accept
+        let response = await fetch(githubUrl, {
+            headers: {
+                'Accept': "application/vnd.github.v3+json"
+            }
+        });
+
+        // If GitHub returns 422 (validation failed), retry with a simpler qualifier
+        if (response.status === 422) {
+            console.warn('GitHub search validation failed. Retrying with followers:>0');
+            userDetails.innerHTML = '<p>Search validation failed; retrying...</p>';
+            githubUrl.searchParams.set('q', 'followers:>0');
+            response = await fetch(githubUrl, {
+                headers: {
+                    'Accept': "application/vnd.github.v3+json"
+                }
+            });
+        }
+
+        if (!response.ok) {
+            throw new Error(`GitHub API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.items && data.items.length > 0) {
+            const user = data.items[0];
+            // fetch full user profile (search results return limited fields)
+            const userResponse = await fetch(`https://api.github.com/users/${user.login}`);
+            const fullUser = userResponse.ok ? await userResponse.json() : user;
+            displayUser(fullUser);
+        } else {
+            userDetails.innerHTML = "<p>No user found.</p>";
+        }
+    } catch (error) {
+        console.error("Error fetching GitHub user:", error);
+        userDetails.innerHTML = "<p>Error fetching GitHub user.</p>";
+    }
+
+    function displayUser(user) {
+        const userDetails = document.getElementById('github-user-details');
+        userDetails.innerHTML = `
+            <h3>${user.login}</h3>
+            <p><strong>Username:</strong> ${user.login}</p>
+            <p><strong>Public Repos:</strong> ${user.public_repos}</p>
+            <p><strong>Followers:</strong> ${user.followers}</p>
+            <p><strong>Following:</strong> ${user.following}</p>
+            <img src="${user.avatar_url}" alt="${user.login} avatar">
+        `;
+    }
+}
+
+
 //Stock Information API
 
 //Random Joke API
@@ -224,4 +290,7 @@ weatherApi.addEventListener("click", () => getWeatherInfo());
 jokeApi.addEventListener("click", getJoke);
 currencyApi.addEventListener("click", () => getExchangeRate("USD", "EUR"));
 moviesApi.addEventListener("click", () => getTrendingMovies());
-
+if (githubApi) {
+    // click the section or button to fetch a random GitHub user
+    githubApi.addEventListener("click", getRandomGitHubUser);
+}
