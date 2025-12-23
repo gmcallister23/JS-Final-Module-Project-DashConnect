@@ -270,6 +270,26 @@ async function getRandomGitHubUser() {
 
 //Stock Information API
 
+import { restClient } from 'massive.com/client-js';
+
+const stocksApiKey = "ZpbWMQAZYFSlMvA1Ixv0rSeAyJoyO8mM";
+const rest = restClient(stocksApiKey, 'https://api.massive.com');
+
+async function getStockInfo() {
+    try {
+        const response = await rest.getStocksSnapshotDirection(
+            {direction: "gainers"
+
+            }
+        );
+        console.log('Response:', response);
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+
+}
+getStockInfo();
+
 //Random Joke API
 
 async function getJoke() {
@@ -293,4 +313,8 @@ moviesApi.addEventListener("click", () => getTrendingMovies());
 if (githubApi) {
     // click the section or button to fetch a random GitHub user
     githubApi.addEventListener("click", getRandomGitHubUser);
-}
+};
+
+stockApi.addEventListener("click", getStockInfo);
+
+
