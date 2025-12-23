@@ -8,14 +8,14 @@ const currencyApi = document.getElementById("currency-exchange-api");
 const moviesApi = document.getElementById("trending-movies-api");
 // matches id in index.html
 const githubApi = document.getElementById("github-user-api");
-const stockApi = document.getElementById("stock-api");
+const stockApi = document.getElementById("stock-information-api");
 const jokeApi = document.getElementById("joke-api");
 
 //Random Dog Image API
 async function getDogImage() {
     const response = await fetch('https://dog.ceo/api/breeds/image/random');
     const data = await response.json();
-    dogApi.innerHTML = "";  
+    //dogApi.innerHTML = "";  
     const img = document.createElement('img');
     img.src = data.message;
     dogApi.appendChild(img);
@@ -270,25 +270,42 @@ async function getRandomGitHubUser() {
 
 //Stock Information API
 
-import { restClient } from 'massive.com/client-js';
-
-const stocksApiKey = "ZpbWMQAZYFSlMvA1Ixv0rSeAyJoyO8mM";
-const rest = restClient(stocksApiKey, 'https://api.massive.com');
-
 async function getStockInfo() {
-    try {
-        const response = await rest.getStocksSnapshotDirection(
-            {direction: "gainers"
+    const stockApiKey = 'YlejLXdF8AjXDQ13Tz2EYwk1yanjoUeK';
+    const url = `https://financialmodelingprep.com/stable/biggest-gainers?apikey=${stockApiKey}`;
 
-            }
-        );
-        console.log('Response:', response);
+    try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        const topStocks = data.slice(0, 5);
+
+        console.log('Top 5 stocks:', topStocks);
+
+        topStocks.forEach((stock, index) => {
+            console.log(`${index + 1}. ${stock.symbol} - ${stock.price}`);
+        });
+
+        const stockList = document.createElement('ul');
+        topStocks.forEach(stock => {
+            const stockItem = document.createElement('li');
+            stockItem.textContent = `${stock.symbol} - ${stock.price}`;
+            stockList.appendChild(stockItem);
+        });
+        stockApi.innerHTML = "";
+        stockApi.appendChild(stockList);
+
+        return topStocks;
     } catch (error) {
-        console.error('An error occurred:', error);
+        console.error("Error fetching stock information:", error);
     }
 
 }
-getStockInfo();
+
 
 //Random Joke API
 
