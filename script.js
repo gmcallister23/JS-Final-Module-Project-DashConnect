@@ -15,11 +15,11 @@ const jokeApi = document.getElementById("joke-api");
 async function getDogImage() {
     const response = await fetch('https://dog.ceo/api/breeds/image/random');
     const data = await response.json();
-    //dogApi.innerHTML = "";  
+    const dogApi = document.getElementById('dog-output');
+    if (dogApi) dogApi.innerHTML = "";
     const img = document.createElement('img');
     img.src = data.message;
-    dogApi.appendChild(img);
-       
+    dogApi.appendChild(img);   
 }
 
 
