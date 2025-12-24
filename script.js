@@ -28,7 +28,8 @@ async function getDogImage() {
 async function getCatImage() {
     const response = await fetch("https://api.thecatapi.com/v1/images/search");
     const data = await response.json();
-    catApi.innerHTML = "";
+    const catApi = document.getElementById('cat-output');
+    if (catApi) catApi.innerHTML = "";
     const img = document.createElement('img');
     img.src = data[0].url; // Access the URL from the first object in the array
     catApi.appendChild(img);
@@ -162,6 +163,7 @@ searchInput.addEventListener("input", async (event) => {
 async function getExchangeRate(fromCurrency, toCurrency) {
     const response = await fetch("https://open.er-api.com/v6/latest/USD");
     const data = await response.json();
+    const currencyApi = document.getElementById("currency-output");
     const rate = data.rates[toCurrency];
     currencyApi.innerHTML = `<p>1 ${fromCurrency} = ${rate} ${toCurrency}</p>`;
 }
@@ -180,7 +182,8 @@ async function getTrendingMovies() {
     
         const data = await response.json();
         const top5Movies = data.results.slice(0, 5);
-        moviesApi.innerHTML = "";
+        const moviesApi = document.getElementById("movies-output");
+        if (moviesApi) moviesApi.innerHTML = "";
         top5Movies.forEach((movie, index) => {
             const movieElement = document.createElement('div');
             movieElement.classList.add('movie-item');
@@ -195,11 +198,7 @@ async function getTrendingMovies() {
         console.error("Error fetching trending movies:", error);
         moviesApi.innerHTML = '<p>Error fetching trending movies. Please try again later.</p>';
     }
-}
-
-
-
-    
+}    
 
 //GitHub User Profile API
 
@@ -296,7 +295,8 @@ async function getStockInfo() {
             stockItem.textContent = `${stock.symbol} - ${stock.price}`;
             stockList.appendChild(stockItem);
         });
-        stockApi.innerHTML = "";
+        const stockApi = document.getElementById("stock-output");
+        if (stockApi) stockApi.innerHTML = "";
         stockApi.appendChild(stockList);
 
         return topStocks;
@@ -312,7 +312,8 @@ async function getStockInfo() {
 async function getJoke() {
     const response = await fetch("https://v2.jokeapi.dev/joke/Any?safe-mode");
     const data = await response.json();
-    jokeApi.innerHTML = "";
+    const jokeApi = document.getElementById("joke-output");
+    if (jokeApi) jokeApi.innerHTML = "";
     if (data.type === "single") {
         jokeApi.innerHTML = `<p>${data.joke}</p>`;
     } else if (data.type === "twopart") {
