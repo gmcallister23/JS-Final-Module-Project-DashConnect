@@ -1,4 +1,4 @@
-This is an api dashboar.  Each module connects to a different api to produce specific information. 
+This is an api dashboard.  Each module connects to a different api to produce specific information. 
 
 Each time you click the button, JS manipulates the DOM and creates new information inside the assigned container. 
 
